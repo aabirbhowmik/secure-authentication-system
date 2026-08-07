@@ -1,0 +1,221 @@
+from flask import request, jsonify
+from flask_jwt_extended import (
+    create_access_token, 
+    create_refresh_token, 
+    jwt_required, 
+    get_jwt_identity,
+    get_jwt
+)
+from app import app, jwt_blocklist
+from extensions import db, bcrypt
+from models import User
+from utils.validators import is_strong_password
+
+
+@app.route("/")
+def home():
+    return jsonify({
+        "message": "Secure Authentication System API is running!"
+    })
+
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not username or not email or not password:
+        return jsonify({"msg": "Missing username, email, or password"}), 400
+
+    if User.query.filter_by(username=username).first():
+        return jsonify({"msg": "Username already exists"}), 409
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"msg": "Email already exists"}), 409
+
+    new_user = User(username=username, email=email, password=password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"msg": "User registered successfully"}), 201
+
+# ... rest of your routes ...
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return jsonify({"msg": "Missing username or password"}), 400
+
+    user = User.query.filter_by(username=username).first()
+
+    if user and user.check_password(password):
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
+
+        return jsonify({
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }), 200
+    else:
+        return jsonify({"msg": "Bad username or password"}), 401
+
+@app.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+
+    current_user = get_jwt_identity()
+
+    new_access_token = create_access_token(identity=current_user)
+
+    return jsonify({
+        "access_token": new_access_token
+    }), 200
+
+@app.route("/logout", methods=["POST"])
+@jwt_required()
+def logout():
+
+    jti = get_jwt()["jti"]
+
+    jwt_blocklist.add(jti)
+
+    return jsonify({
+        "msg": "Successfully logged out"
+    }), 200
+
+
+@app.route("/change-password", methods=["POST"])
+@jwt_required()
+def change_password():
+
+    current_user_id = int(get_jwt_identity())
+
+    user = db.session.get(User, current_user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+
+    old_password = data.get("old_password")
+    new_password = data.get("new_password")
+
+    if not old_password or not new_password:
+        return jsonify({"msg": "Both old and new passwords are required"}), 400
+
+    if not user.check_password(old_password):
+        return jsonify({"msg": "Old password is incorrect"}), 401
+
+    if not is_strong_password(new_password):
+        return jsonify({
+            "msg": "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character."
+        }), 400
+
+    user.password = bcrypt.generate_password_hash(new_password).decode("utf-8")
+
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Password changed successfully"
+    }), 200
+
+@app.route("/profile", methods=["GET"])
+@jwt_required()
+def get_profile():
+
+    current_user_id = int(get_jwt_identity())
+
+    user = db.session.get(User, current_user_id)
+
+    if not user:
+        return jsonify({
+            "msg": "User not found"
+        }), 404
+
+    return jsonify({
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "role": user.role,
+        "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "updated_at": user.updated_at.strftime("%Y-%m-%d %H:%M:%S")
+    }), 200
+
+@app.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+
+    current_user_id = int(get_jwt_identity())
+
+    user = db.session.get(User, current_user_id)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    data = request.get_json()
+
+    username = data.get("username")
+    email = data.get("email")
+
+    # Check username uniqueness
+    if username:
+        existing_user = User.query.filter_by(username=username).first()
+
+        if existing_user and existing_user.id != user.id:
+            return jsonify({
+                "msg": "Username already exists"
+            }), 409
+
+        user.username = username
+
+    # Check email uniqueness
+    if email:
+        existing_email = User.query.filter_by(email=email).first()
+
+        if existing_email and existing_email.id != user.id:
+            return jsonify({
+                "msg": "Email already exists"
+            }), 409
+
+        user.email = email
+
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Profile updated successfully"
+    }), 200
+
+@app.route("/profile", methods=["DELETE"])
+@jwt_required()
+def delete_profile():
+
+    current_user_id = int(get_jwt_identity())
+
+    user = db.session.get(User, current_user_id)
+
+    if not user:
+        return jsonify({
+            "msg": "User not found"
+        }), 404
+
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({
+        "msg": "Account deleted successfully"
+    }), 200
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    current_user_id = int(get_jwt_identity())
+    user = db.session.get(User, current_user_id)
+
+    return jsonify({
+        "msg": f"Hello, {user.username}! You have access to protected data."
+    }), 200
