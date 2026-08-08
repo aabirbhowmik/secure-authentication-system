@@ -1,3 +1,6 @@
+import random
+from datetime import datetime, timedelta, UTC
+from models import User, PasswordResetOTP
 from flask import request, jsonify
 from flask_jwt_extended import (
     create_access_token, 
@@ -8,7 +11,6 @@ from flask_jwt_extended import (
 )
 from app import app, jwt_blocklist
 from extensions import db, bcrypt
-from models import User
 from utils.validators import is_strong_password
 
 
@@ -218,4 +220,45 @@ def protected():
 
     return jsonify({
         "msg": f"Hello, {user.username}! You have access to protected data."
+    }), 200
+
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+
+    data = request.get_json()
+
+    email = data.get("email")
+
+    if not email:
+        return jsonify({
+            "msg": "Email is required"
+        }), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({
+            "msg": "No account found with this email"
+        }), 404
+
+    # Generate a random 6-digit OTP
+    otp = str(random.randint(100000, 999999))
+
+    # OTP expires after 5 minutes
+    expires_at = datetime.now(UTC) + timedelta(minutes=5)
+
+    password_otp = PasswordResetOTP(
+        user_id=user.id,
+        otp=otp,
+        expires_at=expires_at
+    )
+
+    db.session.add(password_otp)
+    db.session.commit()
+
+    # For now, return the OTP.
+    # Later we'll send it via email.
+    return jsonify({
+        "msg": "OTP generated successfully",
+        "otp": otp
     }), 200

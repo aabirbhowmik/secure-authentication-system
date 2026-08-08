@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_migrate import Migrate
 from config import Config
 from extensions import db, bcrypt, jwt
 import sys
@@ -9,6 +10,9 @@ app.config.from_object(Config)
 db.init_app(app)
 bcrypt.init_app(app)
 jwt.init_app(app)
+
+migrate = Migrate(app, db)
+
 jwt_blocklist = set()  # Set to store revoked tokens
 
 @jwt.token_in_blocklist_loader
@@ -21,8 +25,4 @@ sys.modules["app"] = sys.modules[__name__]
 import routes
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    print(app.url_map)
-
     app.run(debug=True)
