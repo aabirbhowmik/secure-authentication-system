@@ -140,13 +140,11 @@ def get_profile():
         }), 404
 
     return jsonify({
-        "id": user.id,
-        "username": user.username,
-        "email": user.email,
-        "role": user.role,
-        "created_at": user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
-        "updated_at": user.updated_at.strftime("%Y-%m-%d %H:%M:%S")
-    }), 200
+    "id": user.id,
+    "username": user.username,
+    "email": user.email,
+    "role": user.role
+}), 200
 
 @app.route("/profile", methods=["PUT"])
 @jwt_required()

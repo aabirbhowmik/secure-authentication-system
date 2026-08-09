@@ -1,49 +1,149 @@
 # 🔐 Secure Authentication System
 
-A secure RESTful Authentication API built using **Flask**, **PostgreSQL**, and **JWT**. This project demonstrates modern authentication practices including user registration, login, JWT-based authorization, profile management, password management, and role-based access control.
+> A production-inspired RESTful Authentication API built with **Flask**,
+> **PostgreSQL**, and **JWT (JSON Web Tokens)** featuring secure
+> authentication, password recovery via OTP, and Role-Based Access
+> Control (RBAC).
 
----
-
-## 🚀 Features
-
-### ✅ Authentication
-- User Registration
-- User Login
-- JWT Authentication
-- Refresh Access Token
-- Logout
-- Change Password
-- Protected Routes
-
-### ✅ User Profile
-- View Profile
-- Update Profile
-- Delete Account
-
-### 🚧 Upcoming Features
-- Forgot Password (OTP Based)
-- Role-Based Access Control (RBAC)
-- Swagger API Documentation
-- Deployment
-
----
-
-## 🛠️ Tech Stack
-
-- Python 3
-- Flask
-- Flask-SQLAlchemy
-- PostgreSQL
-- Flask-JWT-Extended
-- Flask-Bcrypt
-- python-dotenv
-
----
-
-## 📁 Project Structure
-
+```{=html}
+<p align="center">
 ```
-Secure-Authentication-System/
+`<img src="https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python">`{=html}
+`<img src="https://img.shields.io/badge/Flask-3.x-black?style=for-the-badge&logo=flask">`{=html}
+`<img src="https://img.shields.io/badge/PostgreSQL-Database-blue?style=for-the-badge&logo=postgresql">`{=html}
+`<img src="https://img.shields.io/badge/JWT-Authentication-green?style=for-the-badge">`{=html}
+`<img src="https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge">`{=html}
+```{=html}
+</p>
+```
+
+------------------------------------------------------------------------
+
+## 📑 Table of Contents
+
+-   Overview
+-   Features
+-   Tech Stack
+-   System Architecture
+-   Authentication Flow
+-   Project Structure
+-   Installation
+-   Environment Variables
+-   Database Migration
+-   Running the Application
+-   API Endpoints
+-   Security Features
+-   Testing
+-   Future Improvements
+-   Author
+
+------------------------------------------------------------------------
+
+# 📌 Overview
+
+Secure Authentication System is a RESTful backend application developed
+using Flask and PostgreSQL. It provides a secure authentication and
+authorization system using JWT, password hashing with Bcrypt, password
+recovery via OTP, and Role-Based Access Control (RBAC).
+
+This project was built to demonstrate backend development concepts
+commonly used in production applications.
+
+------------------------------------------------------------------------
+
+# ✨ Features
+
+## 🔐 Authentication
+
+-   User Registration
+-   User Login
+-   JWT Access Tokens
+-   JWT Refresh Tokens
+-   Protected Routes
+-   Secure Logout
+-   Change Password
+
+## 👤 User Profile
+
+-   View Profile
+-   Update Profile
+-   Delete Profile
+
+## 🔑 Password Recovery
+
+-   Generate OTP
+-   Verify OTP
+-   Reset Password
+
+## 👑 Role-Based Access Control
+
+-   Admin-only APIs
+-   View All Users
+-   Promote/Demote Users
+-   Delete Users
+
+## 🛡 Security
+
+-   Password Hashing using Bcrypt
+-   JWT Authentication
+-   Role-Based Authorization
+-   PostgreSQL Database
+-   Flask-Migrate Database Versioning
+
+------------------------------------------------------------------------
+
+# 🛠 Tech Stack
+
+  Category             Technology
+  -------------------- --------------------
+  Language             Python
+  Framework            Flask
+  Database             PostgreSQL
+  ORM                  SQLAlchemy
+  Authentication       Flask-JWT-Extended
+  Password Security    Flask-Bcrypt
+  Database Migration   Flask-Migrate
+  Testing              Thunder Client
+
+------------------------------------------------------------------------
+
+# 🏗 System Architecture
+
+``` mermaid
+graph TD
+    Client --> Flask_API
+    Flask_API --> JWT
+    Flask_API --> RBAC
+    Flask_API --> PostgreSQL
+    Flask_API --> OTP_Module
+```
+
+------------------------------------------------------------------------
+
+# 🔄 Authentication Flow
+
+``` mermaid
+flowchart LR
+Register --> Login
+Login --> AccessToken
+Login --> RefreshToken
+AccessToken --> ProtectedRoutes
+RefreshToken --> NewAccessToken
+```
+
+------------------------------------------------------------------------
+
+# 📂 Project Structure
+
+``` text
+SECURE AUTHENTICATION SYSTEM
+│
+├── migrations/
+├── services/
+├── tests/
+├── utils/
+│   ├── __init__.py
+│   └── decorators.py
 │
 ├── app.py
 ├── config.py
@@ -51,88 +151,177 @@ Secure-Authentication-System/
 ├── models.py
 ├── routes.py
 ├── requirements.txt
+├── README.md
 ├── .gitignore
-│
-├── services/
-└── utils/
+└── .env (local only, not committed)
 ```
 
----
+------------------------------------------------------------------------
 
-## ⚙️ Installation
+# 🚀 Installation
 
-Clone the repository
-
-```bash
+``` bash
 git clone https://github.com/aabirbhowmik/secure-authentication-system.git
+cd secure-authentication-system
+python -m venv venv
 ```
 
-Move into the project
+Activate virtual environment
 
-```bash
-cd secure-authentication-system
+Windows
+
+``` bash
+venv\Scripts\activate
+```
+
+Linux/macOS
+
+``` bash
+source venv/bin/activate
 ```
 
 Install dependencies
 
-```bash
+``` bash
 pip install -r requirements.txt
 ```
 
-Create a `.env` file
+------------------------------------------------------------------------
 
-```env
+# ⚙ Environment Variables
+
+Create a `.env` file.
+
+``` env
 SECRET_KEY=your_secret_key
-JWT_SECRET_KEY=your_jwt_secret
-DATABASE_URL=postgresql://username:password@localhost:5432/secure_db
+JWT_SECRET_KEY=your_jwt_secret_key
+DATABASE_URL=your_postgresql_database_url
 ```
 
-Run the application
+------------------------------------------------------------------------
 
-```bash
+# 🗄 Database Migration
+
+``` bash
+flask --app app db init
+flask --app app db migrate -m "Initial Migration"
+flask --app app db upgrade
+```
+
+------------------------------------------------------------------------
+
+# ▶ Run the Application
+
+``` bash
 python app.py
 ```
 
----
+Server:
 
-## 📌 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | /register | Register a new user |
-| POST | /login | User login |
-| POST | /refresh | Generate new access token |
-| POST | /logout | Logout user |
-| POST | /change-password | Change password |
-| GET | /protected | Protected route |
-| GET | /profile | View profile |
-| PUT | /profile | Update profile |
-| DELETE | /profile | Delete profile |
-
----
-
-## 🔒 Authentication
-
-Protected routes require a JWT access token.
-
-Example header:
-
-```
-Authorization: Bearer YOUR_ACCESS_TOKEN
+``` text
+http://127.0.0.1:5000
 ```
 
+------------------------------------------------------------------------
+
+# 📖 API Endpoints
+
+## Authentication
+
+  Method   Endpoint
+  -------- ------------------
+  POST     /register
+  POST     /login
+  POST     /refresh
+  POST     /logout
+  POST     /change-password
+
+## Password Recovery
+
+  Method   Endpoint
+  -------- ------------------
+  POST     /forgot-password
+  POST     /verify-otp
+  POST     /reset-password
+
+## User
+
+  Method   Endpoint
+  -------- ----------
+  GET      /profile
+  PUT      /profile
+  DELETE   /profile
+
+## Admin
+
+  Method   Endpoint
+  -------- ---------------------------------
+  GET      /admin/users
+  PUT      /admin/users/`<id>`{=html}/role
+  DELETE   /admin/users/`<id>`{=html}
+
+------------------------------------------------------------------------
+
+# 🔒 Security Features
+
+-   JWT Authentication
+-   Access & Refresh Tokens
+-   Password Hashing (Bcrypt)
+-   Role-Based Access Control (RBAC)
+-   OTP-Based Password Reset
+-   Protected Routes
+
+------------------------------------------------------------------------
+
+# 🧪 Testing
+
+The API can be tested using:
+
+-   Thunder Client
+-   Postman
+
+------------------------------------------------------------------------
+
+# 📸 API Screenshots
+
+## 🔑 Login
+
+![Login](assets/login.png)
+
 ---
 
-## 📈 Project Status
+## 👤 User Profile
 
-✅ Authentication Module Completed
-
-✅ User Profile Module Completed
-
-🚧 Forgot Password Module In Progress
+![Profile](assets/profile.png)
 
 ---
 
-## 👨‍💻 Author
+## 🔐 Forgot Password (OTP)
+
+![Forgot Password](assets/forgot-password.png)
+
+---
+
+## 👑 Admin - View All Users (RBAC)
+
+![Admin Users](assets/admin-users.png)
+
+------------------------------------------------------------------------
+
+# 🚀 Future Improvements
+
+-   Email-based OTP delivery
+-   Swagger / OpenAPI documentation
+-   Docker support
+-   CI/CD Pipeline
+-   Unit & Integration Tests
+
+------------------------------------------------------------------------
+
+# 👨‍💻 Author
 
 **Aabir Bhowmik**
+
+GitHub: https://github.com/aabirbhowmik
+
+If you found this project useful, consider giving it a ⭐ on GitHub.
