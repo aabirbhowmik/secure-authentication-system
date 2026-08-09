@@ -5,17 +5,15 @@
 > authentication, password recovery via OTP, and Role-Based Access
 > Control (RBAC).
 
-```{=html}
 <p align="center">
-```
-`<img src="https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python">`{=html}
-`<img src="https://img.shields.io/badge/Flask-3.x-black?style=for-the-badge&logo=flask">`{=html}
-`<img src="https://img.shields.io/badge/PostgreSQL-Database-blue?style=for-the-badge&logo=postgresql">`{=html}
-`<img src="https://img.shields.io/badge/JWT-Authentication-green?style=for-the-badge">`{=html}
-`<img src="https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge">`{=html}
-```{=html}
+
+![Python](https://img.shields.io/badge/Python-3.13-blue?style=for-the-badge&logo=python)
+![Flask](https://img.shields.io/badge/Flask-3.x-black?style=for-the-badge&logo=flask)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-blue?style=for-the-badge&logo=postgresql)
+![JWT](https://img.shields.io/badge/JWT-Authentication-green?style=for-the-badge)
+![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-ORM-red?style=for-the-badge)
+
 </p>
-```
 
 ------------------------------------------------------------------------
 
