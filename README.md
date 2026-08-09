@@ -47,6 +47,24 @@ recovery via OTP, and Role-Based Access Control (RBAC).
 This project was built to demonstrate backend development concepts
 commonly used in production applications.
 
+## 🌐 Live API
+
+**Base URL**
+
+https://secure-authentication-system-w0ds.onrender.com
+
+**Health Check**
+
+GET /
+
+Returns:
+
+```json
+{
+  "message": "Secure Authentication System API is running!"
+}
+```
+
 ------------------------------------------------------------------------
 
 # ✨ Features
